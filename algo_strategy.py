@@ -106,10 +106,10 @@ class AlgoStrategy(gamelib.AlgoCore):
             if game_state.can_spawn(SCRAMBLER, each):
                 game_state.attempt_spawn(SCRAMBLER, each)
         # Hoard bits until we can send out a big batch of pings
-        pings = [[[13, 0], [14, 0]]]
+        pings = [[13, 0], [14, 0]]
         if game_state.get_resource(game_state.BITS) < self.batch_ping_num:
             return
-        deploy_loc = pings[random.randint(1, 2)]  # Pick a spot to deploy
+        deploy_loc = pings[random.randint(0, 1)]  # Pick a spot to deploy
         if game_state.can_spawn(PING, deploy_loc, self.batch_ping_num):
             game_state.attempt_spawn(PING, deploy_loc, self.batch_ping_num)
 
