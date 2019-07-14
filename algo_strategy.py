@@ -94,6 +94,13 @@ class AlgoStrategy(gamelib.AlgoCore):
         for loc in bottom_encryptors:
             if game_state.can_spawn(ENCRYPTOR, loc):
                 game_state.attempt_spawn(ENCRYPTOR, loc)
+        # Add some extra destructors to protect our wings
+        wing_destructors = [
+            [5, 10], [22, 10], [7, 8], [20, 8], [9, 6], [18, 6], [3, 12], [24, 12], [1, 12], [26, 12]
+        ]
+        for loc in wing_destructors:
+            if game_state.can_spawn(DESTRUCTOR, loc):
+                game_state.attempt_spawn(DESTRUCTOR, loc)
 
     def deploy_attackers(self, game_state):
         """
