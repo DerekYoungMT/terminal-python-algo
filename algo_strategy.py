@@ -94,13 +94,14 @@ class AlgoStrategy(gamelib.AlgoCore):
         # Reset the flag
         self.sent_pings_last_round = False
 
-    def build_base(self, game_state):
+    def build_base(self, game_state, forced_prioritize=False):
         """
         Every turn we go through our base setup and see if there's any
-        destroyed or unbuilt part. We prioritize each part in the following
-        order: funnel_walls > basic_desctructors > wing_destructors >
-        bottom_encryptors. If we can't finish a part, we won't build the other
-        parts after it even if there's enough resource
+        destroyed or unbuilt part. If forced_prioritize is set, we will
+        prioritize each part in the following order: funnel_walls >
+        basic_desctructors > wing_destructors > bottom_encryptors, which means
+        ff we can't finish a part, we won't build the other parts after it
+        even if there's enough resource
         """
         # Firstly, we use these filters to form a funnel
         funnel_walls = [
@@ -115,7 +116,8 @@ class AlgoStrategy(gamelib.AlgoCore):
                 if game_state.can_spawn(FILTER, loc):
                     gamelib.debug_write(f'Add funnel wall at {loc}')
                     game_state.attempt_spawn(FILTER, loc)
-                else:  # Skip the rest to save resource
+                elif forced_prioritize:
+                    # When priorized, skip the rest to save resource on this
                     gamelib.debug_write('No enough resource to build the '
                                         'funnel walls. Skip the rest')
                     return
@@ -130,7 +132,8 @@ class AlgoStrategy(gamelib.AlgoCore):
                 if game_state.can_spawn(DESTRUCTOR, loc):
                     gamelib.debug_write(f'Add basic desctructor at {loc}')
                     game_state.attempt_spawn(DESTRUCTOR, loc)
-                else:  # Skip the rest to save resource
+                elif forced_prioritize:
+                    # When priorized, skip the rest to save resource on this
                     gamelib.debug_write('No enough resource to build the '
                                         'basic destructors. Skip the rest')
                     return
@@ -145,7 +148,8 @@ class AlgoStrategy(gamelib.AlgoCore):
                 if game_state.can_spawn(DESTRUCTOR, loc):
                     gamelib.debug_write(f'Add wing desctructor at {loc}')
                     game_state.attempt_spawn(DESTRUCTOR, loc)
-                else:  # Skip the rest to save resource
+                elif forced_prioritize:
+                    # When priorized, skip the rest to save resource on this
                     gamelib.debug_write('No enough resource to build the '
                                         'wing destructors. Skip the rest')
                     return
@@ -157,7 +161,8 @@ class AlgoStrategy(gamelib.AlgoCore):
                 if game_state.can_spawn(ENCRYPTOR, loc):
                     gamelib.debug_write(f'Add bottom encryptor at {loc}')
                     game_state.attempt_spawn(ENCRYPTOR, loc)
-                else:  # Skip the rest to save resource
+                elif forced_prioritize:
+                    # When priorized, skip the rest to save resource on this
                     gamelib.debug_write('No enough resource to build the '
                                         'bottom encryptors. Skip the rest')
                     return
