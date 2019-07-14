@@ -97,9 +97,12 @@ class AlgoStrategy(gamelib.AlgoCore):
     def build_base(self, game_state):
         """
         Every turn we go through our base setup and see if there's any
-        destroyed or unbuilt part.
+        destroyed or unbuilt part. We prioritize each part in the following
+        order: funnel_walls > basic_desctructors > wing_destructors >
+        bottom_encryptors. If we can't finish a part, we won't build the other
+        parts after it even if there's enough resource
         """
-        # We use these filters to form a funnel
+        # Firstly, we use these filters to form a funnel
         funnel_walls = [
             [0, 13], [1, 13], [2, 13], [3, 13], [24, 13], [25, 13], [26, 13],
             [27, 13], [4, 12], [23, 12], [5, 11], [22, 11], [6, 10], [21, 10],
@@ -107,33 +110,57 @@ class AlgoStrategy(gamelib.AlgoCore):
             [12, 7], [15, 7], [16, 7], [17, 7], [18, 7]
         ]
         for loc in funnel_walls:
-            if game_state.can_spawn(FILTER, loc):
-                gamelib.debug_write(f'Add funnel wall at {loc}')
-                game_state.attempt_spawn(FILTER, loc)
-        # Our basic defense line, placed at the bottom and two corners
+            if not game_state.contains_stationary_unit(loc):
+                # If the location is empty, we need to build/rebuild it
+                if game_state.can_spawn(FILTER, loc):
+                    gamelib.debug_write(f'Add funnel wall at {loc}')
+                    game_state.attempt_spawn(FILTER, loc)
+                else:  # Skip the rest to save resource
+                    gamelib.debug_write('No enough resource to build the '
+                                        'funnel walls. Skip the rest')
+                    return
+        # Secondly, placed basic defense at the bottom and two corners
         basic_destructors = [
             [12, 6], [15, 6], [12, 5], [15, 5],
             [12, 4], [15, 4], [3, 12], [24, 12]
         ]
         for loc in basic_destructors:
-            if game_state.can_spawn(DESTRUCTOR, loc):
-                gamelib.debug_write(f'Add basic desctructor at {loc}')
-                game_state.attempt_spawn(DESTRUCTOR, loc)
-        # Our bottom encryptor will boost our out going units
-        bottom_encryptors = [[12, 3], [15, 3], [12, 2], [15, 2]]
-        for loc in bottom_encryptors:
-            if game_state.can_spawn(ENCRYPTOR, loc):
-                gamelib.debug_write(f'Add bottom encryptor at {loc}')
-                game_state.attempt_spawn(ENCRYPTOR, loc)
-        # Add some extra destructors to protect our wings
+            if not game_state.contains_stationary_unit(loc):
+                # If the location is empty, we need to build/rebuild it
+                if game_state.can_spawn(DESTRUCTOR, loc):
+                    gamelib.debug_write(f'Add basic desctructor at {loc}')
+                    game_state.attempt_spawn(DESTRUCTOR, loc)
+                else:  # Skip the rest to save resource
+                    gamelib.debug_write('No enough resource to build the '
+                                        'basic destructors. Skip the rest')
+                    return
+        # Thirdly, add protection to our wings
         wing_destructors = [
             [5, 10], [22, 10], [7, 8], [20, 8],
             [9, 6], [18, 6], [1, 12], [26, 12]
         ]
         for loc in wing_destructors:
-            if game_state.can_spawn(DESTRUCTOR, loc):
-                gamelib.debug_write(f'Add wing desctructor at {loc}')
-                game_state.attempt_spawn(DESTRUCTOR, loc)
+            if not game_state.contains_stationary_unit(loc):
+                # If the location is empty, we need to build/rebuild it
+                if game_state.can_spawn(DESTRUCTOR, loc):
+                    gamelib.debug_write(f'Add wing desctructor at {loc}')
+                    game_state.attempt_spawn(DESTRUCTOR, loc)
+                else:  # Skip the rest to save resource
+                    gamelib.debug_write('No enough resource to build the '
+                                        'wing destructors. Skip the rest')
+                    return
+        # Fourthly, set bottom encryptors to boost our out going units
+        bottom_encryptors = [[12, 3], [15, 3], [12, 2], [15, 2]]
+        for loc in bottom_encryptors:
+            if not game_state.contains_stationary_unit(loc):
+                # If the location is empty, we need to build/rebuild it
+                if game_state.can_spawn(ENCRYPTOR, loc):
+                    gamelib.debug_write(f'Add bottom encryptor at {loc}')
+                    game_state.attempt_spawn(ENCRYPTOR, loc)
+                else:  # Skip the rest to save resource
+                    gamelib.debug_write('No enough resource to build the '
+                                        'bottom encryptors. Skip the rest')
+                    return
 
     def deploy_attackers(self, game_state):
         """
