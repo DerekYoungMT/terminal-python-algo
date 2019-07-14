@@ -8,16 +8,16 @@ from sys import maxsize
 Most of the algo code you write will be in this file unless you create new
 modules yourself. Start by modifying the 'on_turn' function.
 
-Advanced strategy tips: 
+Advanced strategy tips:
 
-Additional functions are made available by importing the AdvancedGameState 
-class from gamelib/advanced.py as a replacement for the regular GameState class 
+Additional functions are made available by importing the AdvancedGameState
+class from gamelib/advanced.py as a replacement for the regular GameState class
 in game.py.
 
 You can analyze action frames by modifying algocore.py.
 
-The GameState.map object can be manually manipulated to create hypothetical 
-board states. Though, we recommended making a copy of the map to preserve 
+The GameState.map object can be manually manipulated to create hypothetical
+board states. Though, we recommended making a copy of the map to preserve
 the actual current map state.
 """
 
@@ -27,14 +27,15 @@ hoard more than 24 bits
 """
 BATCH_PINGS_NUM_CAP = 24
 
+
 class AlgoStrategy(gamelib.AlgoCore):
     def __init__(self):
         super().__init__()
         random.seed()
 
     def on_game_start(self, config):
-        """ 
-        Read in config and perform any initial setup here 
+        """
+        Read in config and perform any initial setup here
         """
         gamelib.debug_write('Configuring your custom algo strategy...')
         self.config = config
@@ -61,8 +62,8 @@ class AlgoStrategy(gamelib.AlgoCore):
         game engine.
         """
         game_state = gamelib.GameState(self.config, turn_state)
-        gamelib.debug_write('Performing turn {} of your custom algo strategy'.format(game_state.turn_number))
-        #game_state.suppress_warnings(True)  #Uncomment this line to suppress warnings.
+        gamelib.debug_write(f'Performing turn {game_state.turn_number} of '
+                            'your custom algo strategy')
         # Call our strategy function to perform our moves
         self.battle_strategy(game_state)
         game_state.submit_turn()
@@ -95,8 +96,8 @@ class AlgoStrategy(gamelib.AlgoCore):
 
     def build_base(self, game_state):
         """
-        Every turn we go through our base setup and see if there's any destroyed
-        or unbuilt part.
+        Every turn we go through our base setup and see if there's any
+        destroyed or unbuilt part.
         """
         # We use these filters to form a funnel
         funnel_walls = [
@@ -107,29 +108,31 @@ class AlgoStrategy(gamelib.AlgoCore):
         ]
         for loc in funnel_walls:
             if game_state.can_spawn(FILTER, loc):
-                gamelib.debug_write('Add funnel wall at {}'.format(loc))
+                gamelib.debug_write(f'Add funnel wall at {loc}')
                 game_state.attempt_spawn(FILTER, loc)
         # Our basic defense line, placed at the bottom and two corners
         basic_destructors = [
-            [12, 6], [15, 6], [12, 5], [15, 5], [12, 4], [15, 4], [3, 12], [24, 12]
+            [12, 6], [15, 6], [12, 5], [15, 5],
+            [12, 4], [15, 4], [3, 12], [24, 12]
         ]
         for loc in basic_destructors:
             if game_state.can_spawn(DESTRUCTOR, loc):
-                gamelib.debug_write('Add basic desctructor at {}'.format(loc))
+                gamelib.debug_write(f'Add basic desctructor at {loc}')
                 game_state.attempt_spawn(DESTRUCTOR, loc)
         # Our bottom encryptor will boost our out going units
         bottom_encryptors = [[12, 3], [15, 3], [12, 2], [15, 2]]
         for loc in bottom_encryptors:
             if game_state.can_spawn(ENCRYPTOR, loc):
-                gamelib.debug_write('Add bottom encryptor at {}'.format(loc))
+                gamelib.debug_write(f'Add bottom encryptor at {loc}')
                 game_state.attempt_spawn(ENCRYPTOR, loc)
         # Add some extra destructors to protect our wings
         wing_destructors = [
-            [5, 10], [22, 10], [7, 8], [20, 8], [9, 6], [18, 6], [1, 12], [26, 12]
+            [5, 10], [22, 10], [7, 8], [20, 8],
+            [9, 6], [18, 6], [1, 12], [26, 12]
         ]
         for loc in wing_destructors:
             if game_state.can_spawn(DESTRUCTOR, loc):
-                gamelib.debug_write('Add wing desctructor at {}'.format(loc))
+                gamelib.debug_write(f'Add wing desctructor at {loc}')
                 game_state.attempt_spawn(DESTRUCTOR, loc)
 
     def deploy_attackers(self, game_state):
@@ -153,7 +156,7 @@ class AlgoStrategy(gamelib.AlgoCore):
             self.sent_pings_last_round = True
             deploy_loc = pings[random.randint(0, 1)]  # Pick a spot to deploy
             if game_state.can_spawn(PING, deploy_loc, cur_batch_num):
-                msg = 'Deploy {} pings at {}'.format(cur_batch_num, deploy_loc)
+                msg = f'Deploy {cur_batch_num} pings at {deploy_loc}'
                 gamelib.debug_write(msg)
                 game_state.attempt_spawn(PING, deploy_loc, cur_batch_num)
 
